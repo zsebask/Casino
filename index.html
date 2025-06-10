@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Casino Simulator</title>
+  <title>Casino Simulator Mejorado</title>
   <style>
     /* Reset básico */
     * {
@@ -63,12 +63,12 @@
     main {
       margin: 2rem auto;
       width: 90%;
-      max-width: 600px;
+      max-width: 650px;
       background: #2c1b00;
       border-radius: 15px;
       padding: 2rem;
       box-shadow: 0 0 20px #f0d76a;
-      min-height: 400px;
+      min-height: 450px;
       color: #fffbe0;
     }
 
@@ -111,33 +111,57 @@
       background: #d4b94f;
     }
 
-    input[type="number"] {
-      width: 60px;
-      padding: 0.4rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: 2px solid #f0d76a;
-      text-align: center;
-      background: #3a1f00;
-      color: #f0d76a;
-      margin-right: 1rem;
-    }
-
     button {
       cursor: pointer;
     }
 
+    /* Juego de cartas */
+    #cards-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 1rem 0;
+    }
+    .card {
+      width: 80px;
+      height: 120px;
+      background: #5a3300;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #d4b94f;
+      color: #f0d76a;
+      font-weight: bold;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s ease;
+    }
+    .card:hover {
+      background: #f0d76a;
+      color: #3a1f00;
+      box-shadow: 0 0 15px #f0d76a;
+    }
+    .card.selected {
+      background: #d4b94f;
+      color: #3a1f00;
+      box-shadow: 0 0 20px #f0d76a;
+      cursor: default;
+    }
+
+    /* Minas */
     #mines-grid {
       display: grid;
-      grid-template-columns: repeat(5, 50px);
-      grid-gap: 10px;
+      grid-template-columns: repeat(8, 45px);
+      grid-gap: 8px;
       justify-content: center;
       margin: 1rem 0;
     }
 
     .mine-cell {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       background: #5a3300;
       border-radius: 8px;
       box-shadow: inset 0 0 8px #d4b94f;
@@ -145,7 +169,7 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       color: transparent;
       user-select: none;
       transition: background 0.3s ease, color 0.3s ease;
@@ -164,6 +188,13 @@
       box-shadow: 0 0 15px #ff4c4c;
     }
 
+    #mines-message {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 0.5rem;
+      min-height: 1.5rem;
+    }
+
     footer {
       margin-top: auto;
       padding: 1rem;
@@ -178,10 +209,10 @@
 </head>
 <body>
   <header>
-    <h1>🎰 Casino Simulator 🎲</h1>
+    <h1>🎰 Casino Simulator Mejorado 🎲</h1>
     <nav>
       <button id="btn-roulette" class="nav-btn active">Ruleta</button>
-      <button id="btn-luck" class="nav-btn">Juego de Suerte</button>
+      <button id="btn-cards" class="nav-btn">Juego de Cartas</button>
       <button id="btn-mines" class="nav-btn">Minas</button>
     </nav>
   </header>
@@ -189,7 +220,7 @@
   <main>
     <!-- Ruleta -->
     <section id="roulette-section" class="game-section active">
-      <h2>Ruleta</h2>
+      <h2>Ruleta (70% perder, 30% ganar)</h2>
       <div class="roulette-container">
         <canvas id="roulette-canvas" width="300" height="300"></canvas>
       </div>
@@ -197,22 +228,27 @@
       <p id="roulette-result"></p>
     </section>
 
-    <!-- Juego de Suerte -->
-    <section id="luck-section" class="game-section">
-      <h2>Juego de Suerte</h2>
-      <p>Elige un número del 1 al 10 y prueba tu suerte.</p>
-      <input type="number" id="luck-input" min="1" max="10" />
-      <button id="luck-btn">Jugar</button>
-      <p id="luck-result"></p>
+    <!-- Juego de cartas -->
+    <section id="cards-section" class="game-section">
+      <h2>Juego de Cartas - Adivina la carta</h2>
+      <p>Elige una carta entre 4. Si aciertas, ganas.</p>
+      <div id="cards-container">
+        <div class="card" data-card="A">A</div>
+        <div class="card" data-card="K">K</div>
+        <div class="card" data-card="Q">Q</div>
+        <div class="card" data-card="J">J</div>
+      </div>
+      <p id="cards-result"></p>
+      <button id="cards-reset-btn" style="display:none; margin: 1rem auto; padding: 0.5rem 1rem; background:#f0d76a; border:none; border-radius:6px; font-weight:bold; color:#3a1f00; cursor:pointer;">Jugar de nuevo</button>
     </section>
 
     <!-- Juego de Minas -->
     <section id="mines-section" class="game-section">
-      <h2>Juego de Minas</h2>
+      <h2>Juego de Minas (8x8, 2 minas)</h2>
       <p>Evita las minas y gana puntos.</p>
       <div id="mines-grid"></div>
       <p id="mines-message"></p>
-      <button id="mines-reset-btn">Reiniciar Juego</button>
+      <button id="mines-reset-btn" class="spin-btn" style="margin-top: 1rem;">Reiniciar Juego</button>
     </section>
   </main>
 
@@ -223,15 +259,15 @@
   <script>
     // Navegación entre juegos
     const btnRoulette = document.getElementById('btn-roulette');
-    const btnLuck = document.getElementById('btn-luck');
+    const btnCards = document.getElementById('btn-cards');
     const btnMines = document.getElementById('btn-mines');
 
     const sectionRoulette = document.getElementById('roulette-section');
-    const sectionLuck = document.getElementById('luck-section');
+    const sectionCards = document.getElementById('cards-section');
     const sectionMines = document.getElementById('mines-section');
 
-    const navButtons = [btnRoulette, btnLuck, btnMines];
-    const sections = [sectionRoulette, sectionLuck, sectionMines];
+    const navButtons = [btnRoulette, btnCards, btnMines];
+    const sections = [sectionRoulette, sectionCards, sectionMines];
 
     function activateSection(index) {
       sections.forEach((sec, i) => {
@@ -241,26 +277,31 @@
     }
 
     btnRoulette.addEventListener('click', () => activateSection(0));
-    btnLuck.addEventListener('click', () => activateSection(1));
+    btnCards.addEventListener('click', () => activateSection(1));
     btnMines.addEventListener('click', () => activateSection(2));
   </script>
 
   <script>
-    // Código Ruleta
+    // Ruleta con 70% perder, 30% ganar
     const canvas = document.getElementById('roulette-canvas');
     const ctx = canvas.getContext('2d');
     const spinBtn = document.getElementById('spin-btn');
     const resultText = document.getElementById('roulette-result');
 
+    // Se agregan segmentos de "perder" y "ganar" para simular probabilidades
+    // 70% perder: 7 segmentos "Perder"
+    // 30% ganar: 3 segmentos con multiplicadores
     const segments = [
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
+      { color: '#a83232', label: 'Perder', multiplier: 0 },
       { color: '#f0d76a', label: 'x2', multiplier: 2 },
       { color: '#d4b94f', label: 'x3', multiplier: 3 },
       { color: '#bfa134', label: 'x5', multiplier: 5 },
-      { color: '#f0d76a', label: 'x2', multiplier: 2 },
-      { color: '#d4b94f', label: 'x3', multiplier: 3 },
-      { color: '#bfa134', label: 'x5', multiplier: 5 },
-      { color: '#f0d76a', label: 'x2', multiplier: 2 },
-      { color: '#d4b94f', label: 'x3', multiplier: 3 },
     ];
 
     const centerX = canvas.width / 2;
@@ -284,7 +325,7 @@
 
       // Texto
       ctx.save();
-      ctx.fillStyle = '#3a1f00';
+      ctx.fillStyle = segment.multiplier === 0 ? '#fff' : '#3a1f00';
       ctx.font = 'bold 18px Arial';
       ctx.translate(centerX, centerY);
       ctx.rotate(startAngle + arc / 2);
@@ -341,7 +382,13 @@
             ((degrees / (360 / segments.length)) % segments.length)
         ) % segments.length;
       const segment = segments[index];
-      resultText.textContent = `¡Ganaste un multiplicador de ${segment.label}!`;
+      if (segment.multiplier === 0) {
+        resultText.textContent = `¡Perdiste! Mejor suerte la próxima vez.`;
+        resultText.style.color = '#ff4c4c';
+      } else {
+        resultText.textContent = `¡Ganaste un multiplicador de ${segment.label}! 🎉`;
+        resultText.style.color = '#f0d76a';
+      }
     }
 
     function easeOut(t, b, c, d) {
@@ -353,110 +400,145 @@
     drawRoulette();
     spinBtn.addEventListener('click', () => {
       resultText.textContent = 'Girando...';
+      resultText.style.color = '#f0d76a';
       spin();
     });
   </script>
 
   <script>
-    // Código Juego de Suerte
-    const luckBtn = document.getElementById('luck-btn');
-    const luckInput = document.getElementById('luck-input');
-    const luckResult = document.getElementById('luck-result');
+    // Juego de cartas - adivina la carta
+    const cardsContainer = document.getElementById('cards-container');
+    const cardsResult = document.getElementById('cards-result');
+    const cardsResetBtn = document.getElementById('cards-reset-btn');
 
-    luckBtn.addEventListener('click', () => {
-      const userNumber = parseInt(luckInput.value);
-      if (isNaN(userNumber) || userNumber < 1 || userNumber > 10) {
-        luckResult.textContent = 'Por favor, ingresa un número entre 1 y 10.';
-        luckResult.style.color = '#ff4c4c';
-        return;
-      }
+    const cards = ['A', 'K', 'Q', 'J'];
+    let cardChosen = null;
+    let winningCard = null;
+    let gameActive = true;
 
-      const winningNumber = Math.floor(Math.random() * 10) + 1;
-      if (userNumber === winningNumber) {
-        luckResult.textContent = `¡Felicidades! Elegiste ${userNumber} y el número ganador es ${winningNumber}. ¡Ganaste! 🎉`;
-        luckResult.style.color = '#f0d76a';
+    function resetCards() {
+      cardChosen = null;
+      winningCard = cards[Math.floor(Math.random() * cards.length)];
+      gameActive = true;
+      cardsResult.textContent = '';
+      cardsResetBtn.style.display = 'none';
+      Array.from(cardsContainer.children).forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'auto';
+      });
+      //console.log('Carta ganadora:', winningCard); // Puedes descomentar para probar
+    }
+
+    cardsContainer.addEventListener('click', e => {
+      if (!gameActive) return;
+      const target = e.target;
+      if (!target.classList.contains('card')) return;
+
+      cardChosen = target.dataset.card;
+      gameActive = false;
+
+      // Mostrar selección
+      Array.from(cardsContainer.children).forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'none';
+      });
+      target.classList.add('selected');
+
+      if (cardChosen === winningCard) {
+        cardsResult.textContent = `¡Ganaste! La carta correcta era ${winningCard} 🎉`;
+        cardsResult.style.color = '#f0d76a';
       } else {
-        luckResult.textContent = `Lo siento, elegiste ${userNumber} pero el número ganador es ${winningNumber}. Intenta de nuevo.`;
-        luckResult.style.color = '#ff4c4c';
+        cardsResult.textContent = `Perdiste. La carta correcta era ${winningCard}. Intenta de nuevo.`;
+        cardsResult.style.color = '#ff4c4c';
       }
+      cardsResetBtn.style.display = 'inline-block';
     });
+
+    cardsResetBtn.addEventListener('click', resetCards);
+
+    resetCards();
   </script>
 
   <script>
-    // Código Juego de Minas
-    const minesGrid = document.getElementById('mines-grid');
-    const minesMessage = document.getElementById('mines-message');
-    const minesResetBtn = document.getElementById('mines-reset-btn');
+   <script>
+  // Juego de minas 8x8 con 6 minas
+  const minesGrid = document.getElementById('mines-grid');
+  const minesMessage = document.getElementById('mines-message');
+  const minesResetBtn = document.getElementById('mines-reset-btn');
 
-    const gridSize = 5;
-    const totalCells = gridSize * gridSize;
-    const totalMines = 5;
+  const gridSize = 8;
+  const totalCells = gridSize * gridSize;
+  const totalMines = 6;  // Aquí está el cambio
 
-    let minesPositions = [];
-    let revealedCount = 0;
-    let gameOver = false;
+  let minesPositions = [];
+  let revealedCount = 0;
+  let gameOver = false;
 
-    function initMines() {
-      minesGrid.innerHTML = '';
-      minesPositions = [];
-      revealedCount = 0;
-      gameOver = false;
-      minesMessage.textContent = 'Selecciona una celda para comenzar.';
+  function initMines() {
+    minesGrid.innerHTML = '';
+    minesPositions = [];
+    revealedCount = 0;
+    gameOver = false;
+    minesMessage.textContent = 'Selecciona una celda para comenzar.';
+    minesMessage.style.color = '#f0d76a';
 
-      // Generar minas aleatorias
-      while (minesPositions.length < totalMines) {
-        const pos = Math.floor(Math.random() * totalCells);
-        if (!minesPositions.includes(pos)) {
-          minesPositions.push(pos);
-        }
-      }
-
-      for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('mine-cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', onCellClick);
-        minesGrid.appendChild(cell);
+    // Generar minas aleatorias
+    while (minesPositions.length < totalMines) {
+      const pos = Math.floor(Math.random() * totalCells);
+      if (!minesPositions.includes(pos)) {
+        minesPositions.push(pos);
       }
     }
 
-    function onCellClick(e) {
-      if (gameOver) return;
-      const cell = e.currentTarget;
-      const index = parseInt(cell.dataset.index);
+    for (let i = 0; i < totalCells; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('mine-cell');
+      cell.dataset.index = i;
+      cell.addEventListener('click', onCellClick);
+      minesGrid.appendChild(cell);
+    }
+  }
 
-      if (cell.classList.contains('revealed')) return;
+  function onCellClick(e) {
+    if (gameOver) return;
+    const cell = e.currentTarget;
+    const index = parseInt(cell.dataset.index);
 
-      if (minesPositions.includes(index)) {
-        cell.classList.add('mine', 'revealed');
+    if (cell.classList.contains('revealed')) return;
+
+    if (minesPositions.includes(index)) {
+      cell.classList.add('mine', 'revealed');
+      gameOver = true;
+      revealAllMines();
+      minesMessage.textContent = '¡Perdiste! Encontraste una mina 💥';
+      minesMessage.style.color = '#ff4c4c';
+    } else {
+      cell.classList.add('revealed');
+      revealedCount++;
+      minesMessage.textContent = `¡Bien! Celdas seguras: ${revealedCount}`;
+      minesMessage.style.color = '#f0d76a';
+      if (revealedCount === totalCells - totalMines) {
         gameOver = true;
+        minesMessage.textContent = '¡Ganaste! Evitaste todas las minas 🎉';
+        minesMessage.style.color = '#f0d76a';
         revealAllMines();
-        minesMessage.textContent = '¡Perdiste! Encontraste una mina 💥';
-      } else {
-        cell.classList.add('revealed');
-        revealedCount++;
-        minesMessage.textContent = `¡Bien! Celdas seguras: ${revealedCount}`;
-        if (revealedCount === totalCells - totalMines) {
-          gameOver = true;
-          minesMessage.textContent = '¡Ganaste! Evitaste todas las minas 🎉';
-          revealAllMines();
-        }
       }
     }
+  }
 
-    function revealAllMines() {
-      const cells = minesGrid.querySelectorAll('.mine-cell');
-      cells.forEach((cell, i) => {
-        if (minesPositions.includes(i)) {
-          cell.classList.add('mine', 'revealed');
-        }
-      });
-    }
+  function revealAllMines() {
+    const cells = minesGrid.querySelectorAll('.mine-cell');
+    cells.forEach((cell, i) => {
+      if (minesPositions.includes(i)) {
+        cell.classList.add('mine', 'revealed');
+      }
+    });
+  }
 
-    minesResetBtn.addEventListener('click', initMines);
+  minesResetBtn.addEventListener('click', initMines);
 
-    // Inicializa el juego al cargar
-    initMines();
-  </script>
+  // Inicializa el juego al cargar
+  initMines();
+</script>
 </body>
 </html>
