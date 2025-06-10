@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Casino Simulator</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1a1a1a, #000000);
+      color: #f0d76a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background: #3a1f00;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 0 15px #f0d76a;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      text-shadow: 0 0 10px #f0d76a;
+    }
+
+    nav {
+      margin-top: 1rem;
+    }
+
+    .nav-btn {
+      background: #5a3300;
+      border: none;
+      color: #f0d76a;
+      padding: 0.6rem 1.2rem;
+      margin: 0 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      box-shadow: 0 0 8px #d4b94f;
+      transition: background 0.3s ease;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: #f0d76a;
+      color: #3a1f00;
+      box-shadow: 0 0 15px #f0d76a;
+    }
+
+    main {
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 600px;
+      background: #2c1b00;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 0 20px #f0d76a;
+      min-height: 400px;
+      color: #fffbe0;
+    }
+
+    .game-section {
+      display: none;
+    }
+
+    .game-section.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 8px #f0d76a;
+    }
+
+    .roulette-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .spin-btn {
+      display: block;
+      margin: 0 auto 1rem auto;
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      background: #f0d76a;
+      border: none;
+      border-radius: 8px;
+      color: #3a1f00;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 15px #f0d76a;
+      transition: background 0.3s ease;
+    }
+
+    .spin-btn:hover {
+      background: #d4b94f;
+    }
+
+    input[type="number"] {
+      width: 60px;
+      padding: 0.4rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 2px solid #f0d76a;
+      text-align: center;
+      background: #3a1f00;
+      color: #f0d76a;
+      margin-right: 1rem;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #mines-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 50px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .mine-cell {
+      width: 50px;
+      height: 50px;
+      background: #5a3300;
+      border-radius: 8px;
+      box-shadow: inset 0 0 8px #d4b94f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: transparent;
+      user-select: none;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .mine-cell.revealed {
+      background: #f0d76a;
+      color: #3a1f00;
+      cursor: default;
+      box-shadow: 0 0 10px #f0d76a;
+    }
+
+    .mine-cell.mine {
+      background: #a83232;
+      color: #fff;
+      box-shadow: 0 0 15px #ff4c4c;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      width: 100%;
+      text-align: center;
+      background: #3a1f00;
+      color: #f0d76a;
+      box-shadow: 0 0 15px #f0d76a;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎰 Casino Simulator 🎲</h1>
+    <nav>
+      <button id="btn-roulette" class="nav-btn active">Ruleta</button>
+      <button id="btn-luck" class="nav-btn">Juego de Suerte</button>
+      <button id="btn-mines" class="nav-btn">Minas</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Ruleta -->
+    <section id="roulette-section" class="game-section active">
+      <h2>Ruleta</h2>
+      <div class="roulette-container">
+        <canvas id="roulette-canvas" width="300" height="300"></canvas>
+      </div>
+      <button id="spin-btn" class="spin-btn">Girar Ruleta</button>
+      <p id="roulette-result"></p>
+    </section>
+
+    <!-- Juego de Suerte -->
+    <section id="luck-section" class="game-section">
+      <h2>Juego de Suerte</h2>
+      <p>Elige un número del 1 al 10 y prueba tu suerte.</p>
+      <input type="number" id="luck-input" min="1" max="10" />
+      <button id="luck-btn">Jugar</button>
+      <p id="luck-result"></p>
+    </section>
+
+    <!-- Juego de Minas -->
+    <section id="mines-section" class="game-section">
+      <h2>Juego de Minas</h2>
+      <p>Evita las minas y gana puntos.</p>
+      <div id="mines-grid"></div>
+      <p id="mines-message"></p>
+      <button id="mines-reset-btn">Reiniciar Juego</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>Proyecto personal - Casino Simulator &copy; 2025</p>
+  </footer>
+
+  <script>
+    // Navegación entre juegos
+    const btnRoulette = document.getElementById('btn-roulette');
+    const btnLuck = document.getElementById('btn-luck');
+    const btnMines = document.getElementById('btn-mines');
+
+    const sectionRoulette = document.getElementById('roulette-section');
+    const sectionLuck = document.getElementById('luck-section');
+    const sectionMines = document.getElementById('mines-section');
+
+    const navButtons = [btnRoulette, btnLuck, btnMines];
+    const sections = [sectionRoulette, sectionLuck, sectionMines];
+
+    function activateSection(index) {
+      sections.forEach((sec, i) => {
+        sec.classList.toggle('active', i === index);
+        navButtons[i].classList.toggle('active', i === index);
+      });
+    }
+
+    btnRoulette.addEventListener('click', () => activateSection(0));
+    btnLuck.addEventListener('click', () => activateSection(1));
+    btnMines.addEventListener('click', () => activateSection(2));
+  </script>
+
+  <script>
+    // Código Ruleta
+    const canvas = document.getElementById('roulette-canvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spin-btn');
+    const resultText = document.getElementById('roulette-result');
+
+    const segments = [
+      { color: '#f0d76a', label: 'x2', multiplier: 2 },
+      { color: '#d4b94f', label: 'x3', multiplier: 3 },
+      { color: '#bfa134', label: 'x5', multiplier: 5 },
+      { color: '#f0d76a', label: 'x2', multiplier: 2 },
+      { color: '#d4b94f', label: 'x3', multiplier: 3 },
+      { color: '#bfa134', label: 'x5', multiplier: 5 },
+      { color: '#f0d76a', label: 'x2', multiplier: 2 },
+      { color: '#d4b94f', label: 'x3', multiplier: 3 },
+    ];
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 140;
+
+    let startAngle = 0;
+    let spinTimeout = null;
+    let spinAngleStart = 0;
+    let spinTime = 0;
+    let spinTimeTotal = 0;
+
+    function drawSegment(index, startAngle, arc) {
+      const segment = segments[index];
+      ctx.beginPath();
+      ctx.fillStyle = segment.color;
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, startAngle, startAngle + arc, false);
+      ctx.lineTo(centerX, centerY);
+      ctx.fill();
+
+      // Texto
+      ctx.save();
+      ctx.fillStyle = '#3a1f00';
+      ctx.font = 'bold 18px Arial';
+      ctx.translate(centerX, centerY);
+      ctx.rotate(startAngle + arc / 2);
+      ctx.textAlign = 'right';
+      ctx.fillText(segment.label, radius - 10, 10);
+      ctx.restore();
+    }
+
+    function drawRoulette() {
+      const arc = (2 * Math.PI) / segments.length;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < segments.length; i++) {
+        drawSegment(i, startAngle + i * arc, arc);
+      }
+
+      // Dibuja la flecha
+      ctx.fillStyle = '#ff0000';
+      ctx.beginPath();
+      ctx.moveTo(centerX - 10, centerY - radius - 10);
+      ctx.lineTo(centerX + 10, centerY - radius - 10);
+      ctx.lineTo(centerX, centerY - radius + 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function spin() {
+      spinAngleStart = Math.random() * 10 + 10;
+      spinTime = 0;
+      spinTimeTotal = Math.random() * 3000 + 4000;
+      rotateWheel();
+    }
+
+    function rotateWheel() {
+      spinTime += 30;
+      if (spinTime >= spinTimeTotal) {
+        stopRotateWheel();
+        return;
+      }
+      const spinAngle =
+        spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+      startAngle += (spinAngle * Math.PI) / 180;
+      drawRoulette();
+      spinTimeout = setTimeout(rotateWheel, 30);
+    }
+
+    function stopRotateWheel() {
+      clearTimeout(spinTimeout);
+      const arc = (2 * Math.PI) / segments.length;
+      const degrees = (startAngle * 180) / Math.PI + 90;
+      const index =
+        Math.floor(
+          segments.length -
+            ((degrees / (360 / segments.length)) % segments.length)
+        ) % segments.length;
+      const segment = segments[index];
+      resultText.textContent = `¡Ganaste un multiplicador de ${segment.label}!`;
+    }
+
+    function easeOut(t, b, c, d) {
+      const ts = (t /= d) * t;
+      const tc = ts * t;
+      return b + c * (tc + -3 * ts + 3 * t);
+    }
+
+    drawRoulette();
+    spinBtn.addEventListener('click', () => {
+      resultText.textContent = 'Girando...';
+      spin();
+    });
+  </script>
+
+  <script>
+    // Código Juego de Suerte
+    const luckBtn = document.getElementById('luck-btn');
+    const luckInput = document.getElementById('luck-input');
+    const luckResult = document.getElementById('luck-result');
+
+    luckBtn.addEventListener('click', () => {
+      const userNumber = parseInt(luckInput.value);
+      if (isNaN(userNumber) || userNumber < 1 || userNumber > 10) {
+        luckResult.textContent = 'Por favor, ingresa un número entre 1 y 10.';
+        luckResult.style.color = '#ff4c4c';
+        return;
+      }
+
+      const winningNumber = Math.floor(Math.random() * 10) + 1;
+      if (userNumber === winningNumber) {
+        luckResult.textContent = `¡Felicidades! Elegiste ${userNumber} y el número ganador es ${winningNumber}. ¡Ganaste! 🎉`;
+        luckResult.style.color = '#f0d76a';
+      } else {
+        luckResult.textContent = `Lo siento, elegiste ${userNumber} pero el número ganador es ${winningNumber}. Intenta de nuevo.`;
+        luckResult.style.color = '#ff4c4c';
+      }
+    });
+  </script>
+
+  <script>
+    // Código Juego de Minas
+    const minesGrid = document.getElementById('mines-grid');
+    const minesMessage = document.getElementById('mines-message');
+    const minesResetBtn = document.getElementById('mines-reset-btn');
+
+    const gridSize = 5;
+    const totalCells = gridSize * gridSize;
+    const totalMines = 5;
+
+    let minesPositions = [];
+    let revealedCount = 0;
+    let gameOver = false;
+
+    function initMines() {
+      minesGrid.innerHTML = '';
+      minesPositions = [];
+      revealedCount = 0;
+      gameOver = false;
+      minesMessage.textContent = 'Selecciona una celda para comenzar.';
+
+      // Generar minas aleatorias
+      while (minesPositions.length < totalMines) {
+        const pos = Math.floor(Math.random() * totalCells);
+        if (!minesPositions.includes(pos)) {
+          minesPositions.push(pos);
+        }
+      }
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('mine-cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', onCellClick);
+        minesGrid.appendChild(cell);
+      }
+    }
+
+    function onCellClick(e) {
+      if (gameOver) return;
+      const cell = e.currentTarget;
+      const index = parseInt(cell.dataset.index);
+
+      if (cell.classList.contains('revealed')) return;
+
+      if (minesPositions.includes(index)) {
+        cell.classList.add('mine', 'revealed');
+        gameOver = true;
+        revealAllMines();
+        minesMessage.textContent = '¡Perdiste! Encontraste una mina 💥';
+      } else {
+        cell.classList.add('revealed');
+        revealedCount++;
+        minesMessage.textContent = `¡Bien! Celdas seguras: ${revealedCount}`;
+        if (revealedCount === totalCells - totalMines) {
+          gameOver = true;
+          minesMessage.textContent = '¡Ganaste! Evitaste todas las minas 🎉';
+          revealAllMines();
+        }
+      }
+    }
+
+    function revealAllMines() {
+      const cells = minesGrid.querySelectorAll('.mine-cell');
+      cells.forEach((cell, i) => {
+        if (minesPositions.includes(i)) {
+          cell.classList.add('mine', 'revealed');
+        }
+      });
+    }
+
+    minesResetBtn.addEventListener('click', initMines);
+
+    // Inicializa el juego al cargar
+    initMines();
+  </script>
+</body>
+</html>
