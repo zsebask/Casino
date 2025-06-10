@@ -460,85 +460,83 @@
   </script>
 
   <script>
-   <script>
-  // Juego de minas 8x8 con 6 minas
-  const minesGrid = document.getElementById('mines-grid');
-  const minesMessage = document.getElementById('mines-message');
-  const minesResetBtn = document.getElementById('mines-reset-btn');
+    // Juego de minas 8x8 con 2 minas
+    const minesGrid = document.getElementById('mines-grid');
+    const minesMessage = document.getElementById('mines-message');
+    const minesResetBtn = document.getElementById('mines-reset-btn');
 
-  const gridSize = 8;
-  const totalCells = gridSize * gridSize;
-  const totalMines = 6;  // Aquí está el cambio
+    const gridSize = 8;
+    const totalCells = gridSize * gridSize;
+    const totalMines = 2;
 
-  let minesPositions = [];
-  let revealedCount = 0;
-  let gameOver = false;
+    let minesPositions = [];
+    let revealedCount = 0;
+    let gameOver = false;
 
-  function initMines() {
-    minesGrid.innerHTML = '';
-    minesPositions = [];
-    revealedCount = 0;
-    gameOver = false;
-    minesMessage.textContent = 'Selecciona una celda para comenzar.';
-    minesMessage.style.color = '#f0d76a';
+    function initMines() {
+      minesGrid.innerHTML = '';
+      minesPositions = [];
+      revealedCount = 0;
+      gameOver = false;
+      minesMessage.textContent = 'Selecciona una celda para comenzar.';
 
-    // Generar minas aleatorias
-    while (minesPositions.length < totalMines) {
-      const pos = Math.floor(Math.random() * totalCells);
-      if (!minesPositions.includes(pos)) {
-        minesPositions.push(pos);
+      // Generar minas aleatorias
+      while (minesPositions.length < totalMines) {
+        const pos = Math.floor(Math.random() * totalCells);
+        if (!minesPositions.includes(pos)) {
+          minesPositions.push(pos);
+        }
+      }
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('mine-cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', onCellClick);
+        minesGrid.appendChild(cell);
       }
     }
 
-    for (let i = 0; i < totalCells; i++) {
-      const cell = document.createElement('div');
-      cell.classList.add('mine-cell');
-      cell.dataset.index = i;
-      cell.addEventListener('click', onCellClick);
-      minesGrid.appendChild(cell);
-    }
-  }
+    function onCellClick(e) {
+      if (gameOver) return;
+      const cell = e.currentTarget;
+      const index = parseInt(cell.dataset.index);
 
-  function onCellClick(e) {
-    if (gameOver) return;
-    const cell = e.currentTarget;
-    const index = parseInt(cell.dataset.index);
+      if (cell.classList.contains('revealed')) return;
 
-    if (cell.classList.contains('revealed')) return;
-
-    if (minesPositions.includes(index)) {
-      cell.classList.add('mine', 'revealed');
-      gameOver = true;
-      revealAllMines();
-      minesMessage.textContent = '¡Perdiste! Encontraste una mina 💥';
-      minesMessage.style.color = '#ff4c4c';
-    } else {
-      cell.classList.add('revealed');
-      revealedCount++;
-      minesMessage.textContent = `¡Bien! Celdas seguras: ${revealedCount}`;
-      minesMessage.style.color = '#f0d76a';
-      if (revealedCount === totalCells - totalMines) {
-        gameOver = true;
-        minesMessage.textContent = '¡Ganaste! Evitaste todas las minas 🎉';
-        minesMessage.style.color = '#f0d76a';
-        revealAllMines();
-      }
-    }
-  }
-
-  function revealAllMines() {
-    const cells = minesGrid.querySelectorAll('.mine-cell');
-    cells.forEach((cell, i) => {
-      if (minesPositions.includes(i)) {
+      if (minesPositions.includes(index)) {
         cell.classList.add('mine', 'revealed');
+        gameOver = true;
+        revealAllMines();
+        minesMessage.textContent = '¡Perdiste! Encontraste una mina 💥';
+        minesMessage.style.color = '#ff4c4c';
+      } else {
+        cell.classList.add('revealed');
+        revealedCount++;
+        minesMessage.textContent = `¡Bien! Celdas seguras: ${revealedCount}`;
+        minesMessage.style.color = '#f0d76a';
+        if (revealedCount === totalCells - totalMines) {
+          gameOver = true;
+          minesMessage.textContent = '¡Ganaste! Evitaste todas las minas 🎉';
+          minesMessage.style.color = '#f0d76a';
+          revealAllMines();
+        }
       }
-    });
-  }
+    }
 
-  minesResetBtn.addEventListener('click', initMines);
+    function revealAllMines() {
+      const cells = minesGrid.querySelectorAll('.mine-cell');
+      cells.forEach((cell, i) => {
+        if (minesPositions.includes(i)) {
+          cell.classList.add('mine', 'revealed');
+        }
+      });
+    }
 
-  // Inicializa el juego al cargar
-  initMines();
-</script>
+    minesResetBtn.addEventListener('click', initMines);
+
+    // Inicializa el juego al cargar
+    initMines();
+  </script>
 </body>
 </html>
